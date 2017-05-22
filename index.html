@@ -43,10 +43,12 @@
                 </div>
             </div>
     <div class="quiz" ng-if="participant">
+          <h4>{{reminingSeconds}}</h4>
         <div class="col-md-6 col-xs-12 col-md-offset-3 overlay question-panel">
             <h3 ng-hide="showQuiz">Quiz is in Progress ... </h3>
             <div ng-show="showQuiz">
                 <h1>{{quizObject.question}}</h1>
+              
                 <div class="row" ng-hide="answered">
                     <div class="col-md-6 answer-panel" ng-click="sendAnswer(1,quizObject.key,quizObject.answer1)">{{quizObject.answer1}}</div>
                     <div class="col-md-6 answer-panel" ng-click="sendAnswer(2,quizObject.key,quizObject.answer2)">{{quizObject.answer2}}</div>
