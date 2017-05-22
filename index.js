@@ -17,14 +17,13 @@ io.on('connection', function (socket) {
     })
 
     socket.on('quizReady', function (msg) {
-
         io.emit('quizReady', msg);
-
     })
     socket.on('reset', function () {
-
         io.emit('reset');
-
+    })
+    socket.on('timeout',function(){
+        io.emit('timeout');
     })
     socket.on('sendAnswer', function (msg) {
         io.emit('sendAnswer', msg);

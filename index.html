@@ -42,10 +42,13 @@
                    <li ng-repeat="user in rightAnswerUsers track by $index">{{user}}</li>
                 </div>
             </div>
-    <div class="quiz" ng-if="participant">
-          <h4>{{reminingSeconds}}</h4>
+    <div class="quiz"  ng-if="participant">
         <div class="col-md-6 col-xs-12 col-md-offset-3 overlay question-panel">
-            <h3 ng-hide="showQuiz">Quiz is in Progress ... </h3>
+         <h3 ng-show="timeout">oops timeout..... </h3>
+        </div>
+          <h4 ng-show="showQuiz" >Remaining Time:{{reminingSeconds}}</h4>
+        <div class="col-md-6 col-xs-12 col-md-offset-3 overlay question-panel">
+            <h3 ng-hide="showQuiz || timeout">Quiz is in Progress ... </h3>
             <div ng-show="showQuiz">
                 <h1>{{quizObject.question}}</h1>
               

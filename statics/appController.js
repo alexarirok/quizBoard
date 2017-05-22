@@ -1,5 +1,5 @@
 angular.module('app').controller('appController', function ($scope, mySocket) {
-
+        var timer= "";
     function init() {
         $scope.users = [];
         $scope.quiz = {};
@@ -22,21 +22,33 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
         }
     }
     $scope.startTimer = function () {
+        $scope.reminingSeconds = " ";
+        $scope.$apply();
         var d1 = new Date(),
             d2 = new Date(d1);
         d2.setSeconds(d1.getSeconds() + 32);
         var countDownDate = d2.getTime();
-        var x = setInterval(function () {
+        timer = setInterval(function () {
             var now = new Date().getTime();
             var distance = countDownDate - now;
            $scope.reminingSeconds = Math.floor((distance % (1000 * 60)) / 1000);
            $scope.$apply();
-            if (distance < 0) {
-                clearInterval(x);
-              
+
+            if (distance <= 0) {
+                clearInterval(timer);
+                mySocket.emit('timeout')
             }
         }, 1000);
     }
+    mySocket.on('timeout',function(){
+        $scope.showQuiz = false;
+        $scope.timeout = true;
+        setTimeout(function(){
+            $scope.timeout = false;
+            $scope.$apply();
+
+        },5000)
+    })
     mySocket.on('online', function (msg) {
         $scope.users.push(msg.username);
     });
@@ -63,6 +75,7 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
 
     mySocket.on('sendAnswer', function (user) {
         $scope.rightAnswerUsers.push(user.name);
+         $scope.reminingSeconds = " ";
     })
 
     $scope.sendQuiz = function () {
@@ -87,6 +100,8 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
         $scope.answered = false;
         $scope.quiz = {};
         $scope.rightAnswerUsers = [];
+        clearInterval(timer);
+     
     });
 
     init();
