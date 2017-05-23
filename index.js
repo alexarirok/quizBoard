@@ -25,6 +25,12 @@ io.on('connection', function (socket) {
     socket.on('timeout',function(){
         io.emit('timeout');
     })
+    socket.on('end',function(){
+        io.emit('end');
+    })
+    socket.on('myScore',function(score){
+        io.emit('myScore', score);
+    })
     socket.on('sendAnswer', function (msg) {
         io.emit('sendAnswer', msg);
         console.log(msg);

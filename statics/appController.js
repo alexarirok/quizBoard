@@ -1,10 +1,12 @@
 angular.module('app').controller('appController', function ($scope, mySocket) {
-        var timer= "";
+    var timer = "";
     function init() {
         $scope.users = [];
         $scope.quiz = {};
         $scope.rightAnswerUsers = [];
         $scope.showQuizDashboard = false;
+        $scope.totalRightAnswer = 0;
+        $scope.userResult = [];
 
         if (localStorage.getItem('user')) {
             $scope.getNickName = false;
@@ -31,8 +33,8 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
         timer = setInterval(function () {
             var now = new Date().getTime();
             var distance = countDownDate - now;
-           $scope.reminingSeconds = Math.floor((distance % (1000 * 60)) / 1000);
-           $scope.$apply();
+            $scope.reminingSeconds = Math.floor((distance % (1000 * 60)) / 1000);
+            $scope.$apply();
 
             if (distance <= 0) {
                 clearInterval(timer);
@@ -40,17 +42,18 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
             }
         }, 1000);
     }
-    mySocket.on('timeout',function(){
+    mySocket.on('timeout', function () {
         $scope.showQuiz = false;
         $scope.timeout = true;
-        setTimeout(function(){
+        setTimeout(function () {
             $scope.timeout = false;
             $scope.$apply();
 
-        },5000)
+        }, 5000)
     })
     mySocket.on('online', function (msg) {
         $scope.users.push(msg.username);
+        $scope.$apply();
     });
 
 
@@ -60,22 +63,37 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
         localStorage.setItem('user', $scope.nickName);
         init();
     }
-
+    $scope.endGame = function () {
+        mySocket.emit('end');
+    }
     $scope.sendAnswer = function (s, k, a) {
         if (s == k) {
             mySocket.emit('sendAnswer', { 'name': $scope.nickName });
             $scope.Ansstatus = 'correctanswer';
+            $scope.totalRightAnswer++;
+
         } else {
             $scope.Ansstatus = 'wronganswer';
         }
+        clearInterval(timer);
         $scope.answered = true;
         $scope.myAnswer = a;
 
     }
 
+    mySocket.on('end', function () {
+        if ($scope.getNickName != 'AdminCreatorQuiz') {
+            mySocket.emit('myScore', { name: $scope.nickName, score: $scope.totalRightAnswer })
+        }
+        $scope.QuizEnd = true;
+    })
+    mySocket.on('myScore', function (score) {
+        $scope.userResult.push(score);
+    })
+
     mySocket.on('sendAnswer', function (user) {
         $scope.rightAnswerUsers.push(user.name);
-         $scope.reminingSeconds = " ";
+        $scope.reminingSeconds = " ";
     })
 
     $scope.sendQuiz = function () {
@@ -101,7 +119,7 @@ angular.module('app').controller('appController', function ($scope, mySocket) {
         $scope.quiz = {};
         $scope.rightAnswerUsers = [];
         clearInterval(timer);
-     
+
     });
 
     init();
